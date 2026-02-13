@@ -24,18 +24,14 @@
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; transition: background 0.3s, color 0.3s; }
         body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background: var(--bg-body); color: var(--text-main); padding-bottom: 85px; }
-
         .header { background: var(--bg-card); padding: 15px 20px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; display: flex; justify-content: space-between; align-items: center; }
         .header h2 { margin: 0; font-size: 1.1em; }
-        .header p { margin: 0; font-size: 0.7em; color: var(--text-muted); }
         .header-tools { display: flex; gap: 15px; align-items: center; }
-        
         .section { display: none; padding: 15px; animation: fadeIn 0.3s; }
         .section.active { display: block; }
         .card { background: var(--bg-card); padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px; }
-        
         label { display: block; font-size: 0.85em; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
-        input, select, textarea { width: 100%; padding: 12px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); font-family: inherit; font-size: 14px; }
+        input, select, textarea { width: 100%; padding: 12px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); font-size: 14px; }
         input[readonly] { opacity: 0.7; cursor: not-allowed; border-style: dashed; }
         .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 10px; }
         .btn-primary { background: var(--primary); color: #fff; }
@@ -43,13 +39,11 @@
         .btn-success { background: var(--success); color: #fff; }
         .btn-danger { background: var(--danger); color: #fff; }
         .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
-
         .dashboard-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .stat-box { background: var(--bg-input); padding: 15px; border-radius: 10px; text-align: center; }
         .stat-val { font-size: 1.5em; font-weight: bold; display: block; }
         .stat-lbl { font-size: 0.7em; text-transform: uppercase; color: var(--text-muted); }
-
-        .absen-row { padding: 12px 0; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; }
+        .absen-row { padding: 12px 0; border-bottom: 1px solid var(--border); }
         .absen-top { display: flex; justify-content: space-between; align-items: center; }
         .absen-opts { display: flex; gap: 5px; }
         input[type="radio"] { display: none; }
@@ -58,18 +52,14 @@
         input[value="I"]:checked + .opt-lbl { background: var(--warning); color: white; border-color: var(--warning); }
         input[value="A"]:checked + .opt-lbl { background: var(--danger); color: white; border-color: var(--danger); }
         [data-theme="dark"] input:checked + .opt-lbl { color: black; }
-
         .recap-table { width: 100%; border-collapse: collapse; font-size: 0.8em; }
         .recap-table th { text-align: left; color: var(--text-muted); padding: 8px 4px; border-bottom: 1px solid var(--border); }
         .recap-table td { padding: 8px 4px; border-bottom: 1px solid var(--border); }
         .col-num { width: 35px; text-align: center; font-weight: bold; }
-        .zero-val { color: var(--text-muted); font-weight: normal; opacity: 0.5; }
-
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--nav-bg); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px 0; z-index: 100; }
         .nav-item { text-align: center; color: var(--text-muted); font-size: 0.7em; width: 20%; cursor: pointer; }
         .nav-item.active { color: var(--accent); font-weight: bold; }
         .nav-icon { font-size: 1.4em; display: block; margin-bottom: 3px; }
-
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
@@ -121,4 +111,187 @@
 
     <div id="view-laporan" class="section">
          <div class="card">
-            <h3 style="margin-top:0
+            <h3 style="margin-top:0;">Rekapitulasi</h3>
+            
+            <div style="margin-bottom: 10px;">
+                <label>Filter Nama:</label>
+                <select id="filter-nama" onchange="renderRekap(); renderLog();" style="border: 1px solid var(--accent); color: var(--accent);">
+                    <option value="">-- Tampilkan Semua --</option>
+                </select>
+            </div>
+
+            <div style="display:flex; gap:10px; margin-bottom:15px; background:var(--bg-input); padding:10px; border-radius:8px;">
+                <div style="flex:1;">
+                    <label>Mode:</label>
+                    <select id="filter-mode" onchange="toggleFilterMode()">
+                        <option value="bulan">🗓️ Bulanan</option>
+                        <option value="semester">📚 Semester</option>
+                    </select>
+                </div>
+                <div style="flex:1;" id="div-filter-bulan">
+                    <label>Bulan:</label>
+                    <input type="month" id="filter-bulan" onchange="renderRekap(); renderLog();">
+                </div>
+            </div>
+
+            <div style="overflow-x:auto; margin-top:15px;">
+                <table class="recap-table">
+                    <thead><tr><th style="width:20px;">No</th><th>Nama</th><th class="col-num">S</th><th class="col-num">I</th><th class="col-num">A</th><th class="col-num">K</th></tr></thead>
+                    <tbody id="rekap-body"></tbody>
+                </table>
+            </div>
+            <button class="btn btn-success" style="margin-top:15px;" onclick="exportCSV()">⬇️ Spreadsheet (Format Rapi)</button>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-top:0;">Log & Rincian Kasus</h3>
+            <div style="overflow-x:auto; max-height: 350px;">
+                <table class="recap-table" id="log-table"></table>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-settings" class="section">
+        <div class="card" style="border-left: 5px solid var(--success);">
+            <h3>Identitas Lisensi</h3>
+            <label>Nama Guru</label><input type="text" id="set-t" readonly>
+            <label style="margin-top:10px;">Nama Sekolah / Kelas</label><input type="text" id="set-s" readonly>
+            <p style="font-size:0.7em; color:var(--text-muted); margin-top:10px;">*Lisensi eksklusif Digital Ally.</p>
+        </div>
+        
+        <div class="card">
+            <h3>💾 Backup & Restore</h3>
+            <button class="btn btn-outline" onclick="backupData()">⬇ Backup Data</button>
+            <div style="margin-top:10px; border-top:1px solid var(--border); padding-top:10px;">
+                <label>Restore File:</label>
+                <input type="file" id="file-restore" accept=".json" onchange="restoreData(this)">
+            </div>
+        </div>
+
+        <button class="btn btn-danger" onclick="resetData()">🗑️ Hapus Seluruh Data</button>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="nav('home', this)"><span class="nav-icon">📊</span>Home</div>
+        <div class="nav-item" onclick="nav('absen', this)"><span class="nav-icon">📝</span>Absen</div>
+        <div class="nav-item" onclick="nav('kasus', this)"><span class="nav-icon">⚠️</span>Kasus</div>
+        <div class="nav-item" onclick="nav('laporan', this)"><span class="nav-icon">📑</span>Laporan</div>
+        <div class="nav-item" onclick="nav('settings', this)"><span class="nav-icon">⚙️</span>Lisensi</div>
+    </div>
+
+<script>
+    /* ==========================================================
+       SETUP ADMIN DIGITAL ALLY (EDIT DI SINI UNTUK PELANGGAN)
+       ========================================================== */
+    const NAMA_GURU = "Bapak Fulan, S.Pd."; 
+    const NAMA_SEKOLAH = "Kelas 9A - SMPN Contoh";
+    const DAFTAR_SISWA = ["Ahmad", "Budi", "Chandra", "Doni", "Eka", "Fajar"]; 
+    /* ========================================================== */
+
+    let dbAbsen = JSON.parse(localStorage.getItem('da_pro_absen')) || [];
+    let dbKasus = JSON.parse(localStorage.getItem('da_pro_kasus')) || [];
+    let currentTheme = localStorage.getItem('theme') || 'dark';
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyTheme(currentTheme);
+        document.getElementById('disp-teacher').innerText = NAMA_GURU;
+        document.getElementById('disp-school').innerText = NAMA_SEKOLAH;
+        document.getElementById('set-t').value = NAMA_GURU;
+        document.getElementById('set-s').value = NAMA_SEKOLAH;
+        setupDate();
+        initApp();
+    });
+
+    function toggleTheme() {
+        currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        applyTheme(currentTheme);
+    }
+
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+    }
+
+    function setupDate() {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('absen-tgl').value = today;
+        document.getElementById('filter-bulan').value = today.slice(0, 7);
+    }
+
+    function initApp() {
+        renderAbsenList();
+        renderDropdowns();
+        updateDashboard();
+        renderRekap();
+        renderLog();
+    }
+
+    function renderAbsenList() {
+        const container = document.getElementById('list-absen-container');
+        container.innerHTML = '';
+        DAFTAR_SISWA.sort().forEach((nama, i) => {
+            container.innerHTML += `
+            <div class="absen-row">
+                <div class="absen-top">
+                    <span>${i+1}. ${nama}</span>
+                    <div class="absen-opts">
+                        <input type="radio" name="abs_${i}" value="H" checked id="h_${i}" onchange="toggleKet(${i})">
+                        <label><input type="radio" name="abs_${i}" value="S" onchange="toggleKet(${i})"><span class="opt-lbl">S</span></label>
+                        <label><input type="radio" name="abs_${i}" value="I" onchange="toggleKet(${i})"><span class="opt-lbl">I</span></label>
+                        <label><input type="radio" name="abs_${i}" value="A" onchange="toggleKet(${i})"><span class="opt-lbl">A</span></label>
+                    </div>
+                </div>
+                <input type="text" id="ket_${i}" placeholder="Keterangan..." style="display:none; padding:8px; font-size:0.8em; margin-top:5px;">
+            </div>`;
+        });
+    }
+
+    window.toggleKet = function(i) {
+        const val = document.querySelector(`input[name="abs_${i}"]:checked`).value;
+        document.getElementById(`ket_${i}`).style.display = (val === 'H') ? 'none' : 'block';
+    }
+
+    function simpanAbsen() {
+        const tgl = document.getElementById('absen-tgl').value;
+        DAFTAR_SISWA.forEach((nama, i) => {
+            const status = document.querySelector(`input[name="abs_${i}"]:checked`).value;
+            const ket = document.getElementById(`ket_${i}`).value;
+            if(status !== 'H') {
+                dbAbsen.push({ id: Date.now()+i, date: tgl, name: nama, type: status, desc: ket });
+            }
+        });
+        localStorage.setItem('da_pro_absen', JSON.stringify(dbAbsen));
+        alert("Tersimpan!"); initApp();
+    }
+
+    function renderDropdowns() {
+        const selKasus = document.getElementById('kasus-nama');
+        const selFilter = document.getElementById('filter-nama');
+        selKasus.innerHTML = '<option value="">-- Pilih Siswa --</option>';
+        selFilter.innerHTML = '<option value="">-- Tampilkan Semua --</option>';
+        DAFTAR_SISWA.sort().forEach(s => {
+            selKasus.innerHTML += `<option value="${s}">${s}</option>`;
+            selFilter.innerHTML += `<option value="${s}">${s}</option>`;
+        });
+    }
+
+    function simpanKasus() {
+        const n = document.getElementById('kasus-nama').value;
+        const ket = document.getElementById('kasus-ket').value;
+        if(!n || !ket) return alert("Isi data!");
+        dbKasus.push({ id: Date.now(), date: new Date().toISOString().split('T')[0], name: n, cat: document.getElementById('kasus-kat').value, desc: ket });
+        localStorage.setItem('da_pro_kasus', JSON.stringify(dbKasus));
+        document.getElementById('kasus-ket').value = '';
+        alert("Kasus dicatat!"); initApp();
+    }
+
+    function updateDashboard() {
+        const today = new Date().toISOString().split('T')[0];
+        const tAbsen = dbAbsen.filter(x => x.date === today);
+        document.getElementById('today-sakit').innerText = tAbsen.filter(x => x.type === 'S').length;
+        document.getElementById('today-izin').innerText = tAbsen.filter(x => x.type === 'I').length;
+        document.getElementById('today-alpha').innerText = tAbsen.filter(x => x.type === 'A').length;
+        document.getElementById('today-kasus').innerText = dbKasus.filter(x => x.date === today).length;
+        const summary = document.getElementById('today-summary');
+        summary.innerHTML = tAbsen.length === 0 ? '<p style="text-align:center;">Nihil</p>' : tAbsen.map(x => `
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8em; margin-bottom:5px
